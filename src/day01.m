@@ -30,21 +30,19 @@ sum([N|Ns]) = N + sum(Ns).
 
 :- pred solve(string::in, io::di, io::uo) is det.
 solve(FileName, !IO) :-
-  io.write_string("Solving for " ++ FileName ++ ":", !IO),
-  io.nl(!IO),
+  io.print_line("Solving for " ++ FileName ++ ":", !IO),
 
   read_lines(FileName, Lines, !IO),
   Report = map(string.det_to_int, Lines),
   
   Incs = count_increases(Report),
-  io.write_string("Part 1: " ++ string(Incs), !IO),
-  io.nl(!IO),
+  io.print_line("Part 1: " ++ string(Incs), !IO),
 
   Windows = sliding_windows(Report, 3),
   WindowSumReport = map(sum, Windows),
   WindowIncs = count_increases(WindowSumReport),
-  io.write_string("Part 2: " ++ string(WindowIncs), !IO),
-  io.nl(!IO).
+
+  io.print_line("Part 2: " ++ string(WindowIncs), !IO).
 
 main(!IO) :-
   solve("inputs/day01_example", !IO),
