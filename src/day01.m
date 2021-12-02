@@ -6,6 +6,7 @@
 
 :- implementation.
 :- import_module string, list, int.
+:- import_module utils.
 
 :- type depth == int.
 
@@ -48,25 +49,3 @@ main(!IO) :-
   solve("inputs/day01_example", !IO),
   io.nl(!IO),
   solve("inputs/day01_part1", !IO).
-
-%%% File utilities
-
-:- pred read_lines(list(string)::out, io::di, io::uo) is det.
-read_lines(Lines, !IO) :-
-  io.read_line_as_string(ReadRes, !IO),
-  (if ReadRes = ok(Line) then
-    Lines = [rstrip(Line)|Ls],
-    read_lines(Ls, !IO)
-  else
-    Lines = []
-  ).
-
-:- pred read_lines(string::in, list(string)::out, io::di, io::uo) is det.
-read_lines(FileName, Lines, !IO) :-
-  see(FileName, SeeRes, !IO),
-  (if SeeRes = ok then
-    read_lines(Lines, !IO),
-    seen(!IO)
-  else
-    Lines = []
-  ).
