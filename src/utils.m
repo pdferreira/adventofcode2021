@@ -1,9 +1,10 @@
 :- module utils.
 
 :- interface.
-:- import_module string, list, io.
+:- import_module string, list, int, io.
 :- pred read_lines(list(string)::out, io::di, io::uo) is det.
 :- pred read_lines(string::in, list(string)::out, io::di, io::uo) is det.
+:- func sum(list(int)) = int.
 
 :- implementation.
 
@@ -26,3 +27,8 @@ read_lines(FileName, Lines, !IO) :-
   else
     Lines = []
   ).
+
+%%% Lists
+
+sum([]) = 0.
+sum([N|Ns]) = N + sum(Ns).

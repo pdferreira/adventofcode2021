@@ -25,10 +25,6 @@ sliding_windows(L, N) = WinLs :- (
     WinLs = [] 
 ).
 
-:- func sum(list(int)) = int.
-sum([]) = 0.
-sum([N|Ns]) = N + sum(Ns).
-
 :- pred solve(string::in, io::di, io::uo) is det.
 solve(FileName, !IO) :-
   io.print_line("Solving for " ++ FileName ++ ":", !IO),
