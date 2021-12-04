@@ -17,13 +17,6 @@ read_bitstring(Str, Bs) :-
   Cs = to_char_list(Str),
   map(binary_digit_to_int, Cs, Bs).
 
-:- pred transpose(list(list(T))::in, list(list(T))::out) is det.
-transpose([], []).
-transpose([Xs], Zs) :- chunk(Xs, 1, Zs).
-transpose([X|Xs @ [_|_]], Zs) :-
-  transpose(Xs, Ys),
-  map_corresponding(cons, X, Ys, Zs).
-
 :- func count_ones(list(binary_number)) = list(int).
 count_ones(BNs) = Os :-
   transpose(BNs, TBNs),
