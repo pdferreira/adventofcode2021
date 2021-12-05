@@ -11,6 +11,8 @@ $srcDir = "src"
 $utilsModule = "utils"
 
 Push-Location $compilationDir
+Write-Host "Compiling..."
+
 sh mmc -i "../$srcDir/$utilsModule.m"
 $compileResult = $?
 
@@ -19,5 +21,6 @@ $compileResult = $compileResult -and $?
 Pop-Location
 
 if ($compileResult) {
+    Write-Host "Running..."
     & "$binDir\$target.exe"
 }
