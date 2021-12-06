@@ -45,7 +45,7 @@ simulate_fish_growth(Days, FishLivesArr) = TotalFish :-
   some [!TmpFishLivesArr] (
     copy(FishLivesArr, !:TmpFishLivesArr),
     simulate_fish_lives(Days, !TmpFishLivesArr),
-    TotalFish = foldl(plus, !.TmpFishLivesArr^content, 0)
+    TotalFish = foldl(plus, to_list(!.TmpFishLivesArr), 0)
   ).
 
 :- pred solve(string::in, io::di, io::uo) is det.
