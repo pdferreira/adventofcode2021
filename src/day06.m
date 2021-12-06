@@ -5,7 +5,7 @@
 :- pred main(io::di, io::uo) is det.
 
 :- implementation.
-:- import_module string, list, int, array, solutions.
+:- import_module string, list, int.
 :- import_module utils, circular_array.
 
 :- type fish_lives == circular_array(int).
