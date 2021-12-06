@@ -8,15 +8,19 @@ if ($null -eq $target) {
 $compilationDir = New-Item -ItemType Directory -Force -Path "obj"
 $binDir = New-Item -ItemType Directory -Force -Path "bin"
 $srcDir = "src"
-$utilsModule = "utils"
 
 Push-Location $compilationDir
 Write-Host "Compiling..."
+$compileResult = $true
 
-sh mmc -i "../$srcDir/$utilsModule.m"
-$compileResult = $?
+# TODO: replace all this mess with a proper makefile
+sh mmc -i "../$srcDir/utils.m"
+$compileResult = $compileResult -and $?
 
-sh mmc "../$srcDir/$utilsModule.m" "../$srcDir/$target.m" -o "$binDir\$target"
+sh mmc -i "../$srcDir/circular_array.m"
+$compileResult = $compileResult -and $?
+
+sh mmc "../$srcDir/utils.m" "../$srcDir/circular_array.m" "../$srcDir/$target.m" -o "$binDir\$target"
 $compileResult = $compileResult -and $?
 Pop-Location
 
