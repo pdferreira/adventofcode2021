@@ -3,16 +3,29 @@
 :- interface.
 :- import_module string, list, int, io, array.
 
+%%% IO
 :- pred read_lines(list(string)::out, io::di, io::uo) is det.
 :- pred read_lines(string::in, list(string)::out, io::di, io::uo) is det.
 
+%%% Math
+:- type one_or_two(T) ---> one(T) ; two(T, T).
 :- func sum(list(int)) = int.
+:- func max(list(int)) = int is semidet.
+:- func min(list(int)) = int is semidet.
+:- func median(list(int)) = one_or_two(int) is semidet.
+:- func arith_series_sum(int, int, int) = int.
+
+%%% Lists
 :- pred transpose(list(list(T))::in, list(list(T))::out) is det.
 :- func transpose(list(list(T))) = list(list(T)) is det.
 
+%%% Arrays
 :- pred update(pred(A, A), array(A), array(A)).
 :- mode update(pred(in, out) is semidet, array_di, array_uo) is det.
 :- pred replace(A::in, A::in, array(A)::array_di, array(A)::array_uo) is det.
+
+%%% Functions
+:- func curry(func(A, B) = C) = (func(A) = (func(B) = C)).
 
 :- implementation.
 
@@ -36,10 +49,30 @@ read_lines(FileName, Lines, !IO) :-
     Lines = []
   ).
 
-%%% Lists
+%%% Math
 
 sum([]) = 0.
 sum([N|Ns]) = N + sum(Ns).
+
+max(Ns @ [_|_]) = foldl(max, Ns, min_int).
+
+min(Ns @ [_|_]) = foldl(min, Ns, max_int).
+
+median(Ns @ [_|_]) = Median :-
+  Len = length(Ns),
+  MiddlePos = (Len / 2) + 1,
+  (if odd(Len) then
+    det_index1(Ns, MiddlePos, N),
+    Median = one(N)
+  else
+    det_index1(Ns, MiddlePos - 1, N1),
+    det_index1(Ns, MiddlePos, N2),
+    Median = two(N1, N2)
+  ).
+
+arith_series_sum(FirstN, LastN, SeriesLen) = (SeriesLen * (FirstN + LastN)) / 2.
+
+%%% Lists
 
 transpose([], []).
 transpose([Xs], Zs) :- chunk(Xs, 1, Zs).
@@ -72,3 +105,7 @@ replace(A, B, !Arr) :- update(
   (pred(Elem::in, NewElem::out) is semidet :- Elem = A, NewElem = B),
   !Arr
 ).
+
+% Functions
+
+curry(Fn) = (func(Arg1) = (func(Arg2) = Fn(Arg1, Arg2))).
