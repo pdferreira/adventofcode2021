@@ -5,7 +5,7 @@
 :- pred main(io::di, io::uo) is det.
 
 :- implementation.
-:- import_module string, list, int, array.
+:- import_module string, list, int, array, std_util.
 :- import_module utils.
 
 :- type number == int.
@@ -105,7 +105,7 @@ solve(FileName, !IO) :-
   (if
     [L|Ls] = Lines,
     Plays = read_plays(L),
-    NonEmptyLs = filter(not(is_empty), Ls),
+    NonEmptyLs = filter(isnt(is_empty), Ls),
     BoardChunks = chunk(NonEmptyLs, 5)
   then
     % Part 1

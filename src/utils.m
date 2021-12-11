@@ -14,9 +14,6 @@
 :- mode update(pred(in, out) is semidet, array_di, array_uo) is det.
 :- pred replace(A::in, A::in, array(A)::array_di, array(A)::array_uo) is det.
 
-:- pred not(pred(T), T).
-:- mode not(pred(in) is semidet, in) is semidet.
-
 :- implementation.
 
 %%% IO
@@ -75,7 +72,3 @@ replace(A, B, !Arr) :- update(
   (pred(Elem::in, NewElem::out) is semidet :- Elem = A, NewElem = B),
   !Arr
 ).
-
-%%% Higher-Order Predicates
-
-not(P, Arg) :- (if P(Arg) then fail else true).
