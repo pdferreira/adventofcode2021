@@ -49,10 +49,6 @@ valid_assignment(WsList, Connections) :-
   Connections = map.from_corresponding_lists(PossibleOrder, [seg_a, seg_b, seg_c, seg_d, seg_e, seg_f, seg_g]),
   validate_assignment(Connections, WsList).
 
-:- func zip_with(func(A, B) = C, list(A), list(B)) = list(C) is semidet.
-zip_with(_, [], []) = [].
-zip_with(ZipElemFn, [X|Xs], [Y|Ys]) = [ZipElemFn(X, Y) | zip_with(ZipElemFn, Xs, Ys)]. 
-
 :- pred read_note(string::in, note::out) is semidet.
 read_note(Line, pair(SignalPatterns, OutputValues)) :-
   [SigPatternStr, OutputValueStr] = split_at_string(" | ", Line),

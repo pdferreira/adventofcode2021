@@ -18,6 +18,7 @@
 %%% Lists
 :- pred transpose(list(list(T))::in, list(list(T))::out) is det.
 :- func transpose(list(list(T))) = list(list(T)) is det.
+:- func zip_with(func(A, B) = C, list(A), list(B)) = list(C) is semidet.
 
 %%% Arrays
 :- pred update(pred(A, A), array(A), array(A)).
@@ -117,6 +118,9 @@ transpose([X|Xs @ [_|_]], Zs) :-
   map_corresponding(cons, X, Ys, Zs).
 
 transpose(Xs) = Zs :- transpose(Xs, Zs).
+
+zip_with(_, [], []) = [].
+zip_with(ZipElemFn, [X|Xs], [Y|Ys]) = [ZipElemFn(X, Y) | zip_with(ZipElemFn, Xs, Ys)].
 
 %%% Arrays
 
