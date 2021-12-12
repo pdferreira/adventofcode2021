@@ -1,7 +1,7 @@
 :- module utils.
 
 :- interface.
-:- import_module string, list, int, io, array, map.
+:- import_module string, list, int, io, array, array2d, map.
 
 %%% IO
 :- pred read_lines(list(string)::out, io::di, io::uo) is det.
@@ -10,6 +10,7 @@
 %%% Math
 :- type one_or_two(T) ---> one(T) ; two(T, T).
 :- func sum(list(int)) = int.
+:- func product(list(int)) = int.
 :- func max(list(int)) = int is semidet.
 :- func min(list(int)) = int is semidet.
 :- func median(list(int)) = one_or_two(int) is semidet.
@@ -24,6 +25,7 @@
 :- pred update(pred(A, A), array(A), array(A)).
 :- mode update(pred(in, out) is semidet, array_di, array_uo) is det.
 :- pred replace(A::in, A::in, array(A)::array_di, array(A)::array_uo) is det.
+:- func array2d_to_string(array2d(T), int) = string.
 
 %%% Maps
 :- func map_to_string(map(A, B)) = string.
@@ -91,6 +93,8 @@ read_lines(FileName, Lines, !IO) :-
 sum([]) = 0.
 sum([N|Ns]) = N + sum(Ns).
 
+product(Ns) = foldl(func(N, Acc) = N * Acc, Ns, 1).
+
 max(Ns @ [_|_]) = foldl(max, Ns, min_int).
 
 min(Ns @ [_|_]) = foldl(min, Ns, max_int).
@@ -145,6 +149,14 @@ replace(A, B, !Arr) :- update(
   (pred(Elem::in, NewElem::out) is semidet :- Elem = A, NewElem = B),
   !Arr
 ).
+
+array2d_to_string(Array2d, PadSize) = string.join_list("\r\n", map(
+    func(L) = string.join_list(" ", map(
+      func(Elem) = pad_left(string(Elem), ' ', PadSize),
+      L
+    )),
+    array2d.lists(Array2d)
+  )).
 
 %%% Maps
 
