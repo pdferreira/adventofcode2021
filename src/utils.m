@@ -1,7 +1,7 @@
 :- module utils.
 
 :- interface.
-:- import_module string, list, int, io, array, array2d, map.
+:- import_module string, list, int, io, array, array2d, map, stack.
 
 %%% IO
 :- pred read_lines(list(string)::out, io::di, io::uo) is det.
@@ -20,6 +20,7 @@
 :- pred transpose(list(list(T))::in, list(list(T))::out) is det.
 :- func transpose(list(list(T))) = list(list(T)) is det.
 :- func zip_with(func(A, B) = C, list(A), list(B)) = list(C) is semidet.
+:- pred frequency(list(A)::in, map(A, int)::out) is det.
 
 %%% Arrays
 :- pred update(pred(A, A), array(A), array(A)).
@@ -29,6 +30,9 @@
 
 %%% Maps
 :- func map_to_string(map(A, B)) = string.
+
+%%% Stacks
+:- func stack_to_list(stack(T)) = list(T) is det.
 
 %%% Functions
 :- func curry(func(A, B) = C) = (func(A) = (func(B) = C)).
@@ -126,6 +130,15 @@ transpose(Xs) = Zs :- transpose(Xs, Zs).
 zip_with(_, [], []) = [].
 zip_with(ZipElemFn, [X|Xs], [Y|Ys]) = [ZipElemFn(X, Y) | zip_with(ZipElemFn, Xs, Ys)].
 
+frequency([], map.init).
+frequency([X|Xs], FreqMap) :-
+  frequency(Xs, InnerFreqMap),
+  (if search(InnerFreqMap, X) = Count then
+    FreqMap = det_update(InnerFreqMap, X, Count + 1)
+  else
+    FreqMap = det_insert(InnerFreqMap, X, 1)
+  ).
+
 %%% Arrays
 
 :- pred update_aux(pred(A, A), int, array(A), array(A)).
@@ -164,6 +177,16 @@ map_to_string(Map) = "map(" ++ EntriesStr ++ ")" :-
   map.keys(Map, Keys),
   EntryStrList = list.map(func(K) = string(K) ++ " -> " ++ string(Map^det_elem(K)), Keys),
   EntriesStr = string.join_list(", ", EntryStrList).
+
+%%% Stacks
+
+stack_to_list(Stack) = List :-
+  (if stack.is_empty(Stack) then
+    List = []
+  else
+    det_pop(Elem, Stack, NewStack),
+    List = [Elem|stack_to_list(NewStack)]
+  ).
 
 %%% Functions
 
