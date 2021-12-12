@@ -20,7 +20,7 @@ $compileResult = $compileResult -and $?
 sh mmc -i "../$srcDir/circular_array.m"
 $compileResult = $compileResult -and $?
 
-sh mmc "../$srcDir/utils.m" "../$srcDir/circular_array.m" "../$srcDir/$target.m" -o "$binDir\$target"
+sh mmc -E "../$srcDir/utils.m" "../$srcDir/circular_array.m" "../$srcDir/$target.m" -o "$binDir\$target"
 $compileResult = $compileResult -and $?
 Pop-Location
 

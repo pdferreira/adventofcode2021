@@ -1,7 +1,7 @@
 :- module utils.
 
 :- interface.
-:- import_module string, list, int, io, array.
+:- import_module string, list, int, io, array, map.
 
 %%% IO
 :- pred read_lines(list(string)::out, io::di, io::uo) is det.
@@ -24,8 +24,44 @@
 :- mode update(pred(in, out) is semidet, array_di, array_uo) is det.
 :- pred replace(A::in, A::in, array(A)::array_di, array(A)::array_uo) is det.
 
+%%% Maps
+:- func map_to_string(map(A, B)) = string.
+
 %%% Functions
 :- func curry(func(A, B) = C) = (func(A) = (func(B) = C)).
+:- func pipe2(func(A) = B, func(B) = C, A) = C.
+:- mode pipe2(func(in) = out is det, func(in) = out is det, in) = out is det.
+:- mode pipe2(func(in) = out is semidet, func(in) = out is semidet, in) = out is semidet.
+:- mode pipe2(func(in) = out is semidet, func(in) = out is det, in) = out is semidet.
+:- mode pipe2(func(in) = out is det, func(in) = out is semidet, in) = out is semidet.
+:- func pipe3(func(A) = B, func(B) = C, func(C) = D, A) = D.
+:- mode pipe3(func(in) = out is det, func(in) = out is det, func(in) = out is det, in) = out is det.
+:- mode pipe3(func(in) = out is semidet, func(in) = out is semidet, func(in) = out is semidet, in) = out is semidet.
+:- mode pipe3(func(in) = out is det, func(in) = out is semidet, func(in) = out is semidet, in) = out is semidet.
+:- mode pipe3(func(in) = out is det, func(in) = out is det, func(in) = out is semidet, in) = out is semidet.
+:- mode pipe3(func(in) = out is semidet, func(in) = out is det, func(in) = out is semidet, in) = out is semidet.
+:- mode pipe3(func(in) = out is semidet, func(in) = out is det, func(in) = out is det, in) = out is semidet.
+:- mode pipe3(func(in) = out is det, func(in) = out is semidet, func(in) = out is det, in) = out is semidet.
+:- mode pipe3(func(in) = out is semidet, func(in) = out is semidet, func(in) = out is det, in) = out is semidet.
+:- pred to_pred(func(A) = B, A, B).
+:- mode to_pred(func(in) = out is det, in, out) is det.
+:- mode to_pred(func(in) = out is semidet, in, out) is semidet.
+
+%%% Predicates
+:- pred pipe2(pred(A, B), pred(B, C), A, C).
+:- mode pipe2(pred(in, out) is det, pred(in, out) is det, in, out) is det.
+:- mode pipe2(pred(in, out) is det, pred(in, out) is semidet, in, out) is semidet.
+:- mode pipe2(pred(in, out) is semidet, pred(in, out) is det, in, out) is semidet.
+:- mode pipe2(pred(in, out) is semidet, pred(in, out) is semidet, in, out) is semidet.
+:- pred pipe3(pred(A, B), pred(B, C), pred(C, D), A, D).
+:- mode pipe3(pred(in, out) is det, pred(in, out) is det, pred(in, out) is det, in, out) is det.
+:- mode pipe3(pred(in, out) is semidet, pred(in, out) is semidet, pred(in, out) is semidet, in, out) is semidet.
+:- mode pipe3(pred(in, out) is det, pred(in, out) is semidet, pred(in, out) is semidet, in, out) is semidet.
+:- mode pipe3(pred(in, out) is det, pred(in, out) is det, pred(in, out) is semidet, in, out) is semidet.
+:- mode pipe3(pred(in, out) is semidet, pred(in, out) is det, pred(in, out) is semidet, in, out) is semidet.
+:- mode pipe3(pred(in, out) is semidet, pred(in, out) is det, pred(in, out) is det, in, out) is semidet.
+:- mode pipe3(pred(in, out) is det, pred(in, out) is semidet, pred(in, out) is det, in, out) is semidet.
+:- mode pipe3(pred(in, out) is semidet, pred(in, out) is semidet, pred(in, out) is det, in, out) is semidet.
 
 :- implementation.
 
@@ -106,6 +142,25 @@ replace(A, B, !Arr) :- update(
   !Arr
 ).
 
-% Functions
+%%% Maps
+
+map_to_string(Map) = "map(" ++ EntriesStr ++ ")" :-
+  map.keys(Map, Keys),
+  EntryStrList = list.map(func(K) = string(K) ++ " -> " ++ string(Map^det_elem(K)), Keys),
+  EntriesStr = string.join_list(", ", EntryStrList).
+
+%%% Functions
 
 curry(Fn) = (func(Arg1) = (func(Arg2) = Fn(Arg1, Arg2))).
+
+pipe2(Fn1, Fn2, Arg1) = Fn2(Arg2) :- Fn1(Arg1) = Arg2.
+
+pipe3(Fn1, Fn2, Fn3, Arg) = pipe2(Fn1, pipe2(Fn2, Fn3))(Arg).
+
+to_pred(Fn, In, Out) :- Fn(In) = Out.
+
+%%% Predicates
+
+pipe2(Pred1, Pred2, In, Out) :- Pred1(In, Out1), Pred2(Out1, Out).
+
+pipe3(Pred1, Pred2, Pred3, In, Out) :- pipe2(Pred1, pipe2(Pred2, Pred3), In, Out).
