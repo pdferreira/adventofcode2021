@@ -26,6 +26,8 @@
 :- pred update(pred(A, A), array(A), array(A)).
 :- mode update(pred(in, out) is semidet, array_di, array_uo) is det.
 :- pred replace(A::in, A::in, array(A)::array_di, array(A)::array_uo) is det.
+:- pred update2d(pred(A, A), array2d(A), array2d(A)).
+:- mode update2d(pred(in, out) is semidet, array2d_di, array2d_uo) is det.
 :- func array2d_to_string(array2d(T), int) = string.
 
 %%% Maps
@@ -162,6 +164,25 @@ replace(A, B, !Arr) :- update(
   (pred(Elem::in, NewElem::out) is semidet :- Elem = A, NewElem = B),
   !Arr
 ).
+
+:- pred update2d_aux(pred(A, A), int, int, array2d(A), array2d(A)).
+:- mode update2d_aux(pred(in, out) is semidet, in, in, array2d_di, array2d_uo) is det.
+update2d_aux(Update, Row, Col, !Arr2d) :-
+  Elem = !.Arr2d^elem(Row, Col),
+  (if Update(Elem, NewElem) then
+    set(Row, Col, NewElem, !Arr2d)
+  else
+    true
+  ),
+  (if in_bounds(!.Arr2d, Row, Col + 1) then
+    update2d_aux(Update, Row, Col + 1, !Arr2d)
+  else if in_bounds(!.Arr2d, Row + 1, 0) then
+    update2d_aux(Update, Row + 1, 0, !Arr2d)
+  else
+    true
+  ).
+
+update2d(Update, !Arr2d) :- update2d_aux(Update, 0, 0, !Arr2d).
 
 array2d_to_string(Array2d, PadSize) = string.join_list("\r\n", map(
     func(L) = string.join_list(" ", map(
