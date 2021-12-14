@@ -32,6 +32,7 @@
 
 %%% Maps
 :- func map_to_string(map(A, B)) = string.
+:- pred increase_value(T::in, int::in, map(T, int)::in, map(T, int)::out) is det.
 
 %%% Stacks
 :- func stack_to_list(stack(T)) = list(T) is det.
@@ -198,6 +199,13 @@ map_to_string(Map) = "map(" ++ EntriesStr ++ ")" :-
   map.keys(Map, Keys),
   EntryStrList = list.map(func(K) = string(K) ++ " -> " ++ string(Map^det_elem(K)), Keys),
   EntriesStr = string.join_list(", ", EntryStrList).
+
+increase_value(Key, DeltaV, !Map) :-
+    (if search(!.Map, Key, Value) then
+      det_update(Key, Value + DeltaV, !Map)
+    else
+      det_insert(Key, DeltaV, !Map)
+    ).
 
 %%% Stacks
 

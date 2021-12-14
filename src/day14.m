@@ -15,11 +15,32 @@
 :- type polymer_rep == map(element_p, int).
 :- type element_freq == map(element, int).
 
+:- pred parse_rule(element::out, element::out, element::out, list(char)::in, list(char)::out) is semidet.
+parse_rule(Left, Right, New) --> 
+  [Left],
+  [Right],
+  parse_spaces(1),
+  parse_arrow,
+  parse_spaces(1),
+  [New].
+
+:- pred parse_arrow(list(char)::in, list(char)::out) is semidet.
+parse_arrow --> ['-', '>'].
+
+:- pred parse_spaces(int::in, list(char)::in, list(char)::out) is semidet.
+parse_spaces(N) --> 
+  (if { N = 0 } then
+    []
+  else
+    [' '], parse_spaces(N - 1)
+  ).
+
 :- pred parse_rules(list(string)::in, rules::out) is semidet.
 parse_rules(Lines, Rules) :-
   foldl(
     (pred(L::in, MapIn::in, MapOut::out) is semidet :-
-      [Left, Right, ' ', '-', '>', ' ', New] = to_char_list(L),
+      %[Left, Right, ' ', '-', '>', ' ', New] = to_char_list(L),
+      parse_rule(Left, Right, New, to_char_list(L), []),  % above line is way simpler, just trying out DCGs for fun
       insert(pair(Left, Right), New, MapIn, MapOut) 
     ),
     Lines,
@@ -61,24 +82,12 @@ synth_score(NumSteps, Rules, Elems, Score) :-
 polymer_to_rep([], PolyRep, PolyRep, ElemFreq, ElemFreq).
 polymer_to_rep([E], !PolyRep, !ElemFreq) :- increase_value(E, 1, !ElemFreq).
 polymer_to_rep([E1,E2|Es], !PolyRep, !ElemFreq) :-
-  (if search(!.PolyRep, pair(E1, E2), Count) then
-    det_update(pair(E1, E2), Count + 1, !PolyRep)
-  else
-    det_insert(pair(E1, E2), 1, !PolyRep)
-  ),
+  increase_value(pair(E1, E2), 1, !PolyRep),
   increase_value(E1, 1, !ElemFreq),
   polymer_to_rep([E2|Es], !PolyRep, !ElemFreq).
 
 :- pred polymer_to_rep(polymer::in, polymer_rep::out, element_freq::out) is det.
 polymer_to_rep(Es, PolyRepOut, ElemFreqOut) :- polymer_to_rep(Es, map.init, PolyRepOut, map.init, ElemFreqOut).
-
-:- pred increase_value(T::in, int::in, map(T, int)::in, map(T, int)::out) is det.
-increase_value(Key, DeltaV, !Map) :-
-    (if search(!.Map, Key, Value) then
-      det_update(Key, Value + DeltaV, !Map)
-    else
-      det_insert(Key, DeltaV, !Map)
-    ).
 
 :- pred synth_pair_rep(rules::in, element_p::in, int::in, polymer_rep::in, polymer_rep::out, element_freq::in, element_freq::out) is det.
 synth_pair_rep(Rules, OrigPair, OrigCount, !PolyRep, !ElemFreq) :-
