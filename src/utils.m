@@ -1,7 +1,7 @@
 :- module utils.
 
 :- interface.
-:- import_module string, list, int, io, array, array2d, map, stack.
+:- import_module string, list, int, io, array, array2d, map, stack, pair.
 
 %%% IO
 :- pred read_lines(list(string)::out, io::di, io::uo) is det.
@@ -21,6 +21,7 @@
 :- func transpose(list(list(T))) = list(list(T)) is det.
 :- func zip_with(func(A, B) = C, list(A), list(B)) = list(C) is semidet.
 :- pred frequency(list(A)::in, map(A, int)::out) is det.
+:- func min_by(func(T) = int, list(T)) = T is semidet.
 
 %%% Arrays
 :- pred update(pred(A, A), array(A), array(A)).
@@ -29,6 +30,8 @@
 :- pred update2d(pred(A, A), array2d(A), array2d(A)).
 :- mode update2d(pred(in, out) is semidet, array2d_di, array2d_uo) is det.
 :- func array2d_to_string(array2d(T), int) = string.
+:- func array2d_to_string(array2d(T), func(T) = string, int) = string.
+:- func elem2d(array2d(T), pair(int, int)) = T is det.
 
 %%% Maps
 :- func map_to_string(map(A, B)) = string.
@@ -142,6 +145,11 @@ frequency([X|Xs], FreqMap) :-
     FreqMap = det_insert(InnerFreqMap, X, 1)
   ).
 
+min_by(_, [X]) = X.
+min_by(ValueToCompareFn, [X1, X2|Xs]) = MinX :-
+  NextMinX = min_by(ValueToCompareFn, [X2|Xs]),
+  MinX = (if ValueToCompareFn(X1) =< ValueToCompareFn(NextMinX) then X1 else NextMinX).
+
 %%% Arrays
 
 :- pred update_aux(pred(A, A), int, array(A), array(A)).
@@ -185,9 +193,13 @@ update2d_aux(Update, Row, Col, !Arr2d) :-
 
 update2d(Update, !Arr2d) :- update2d_aux(Update, 0, 0, !Arr2d).
 
-array2d_to_string(Array2d, PadSize) = string.join_list("\r\n", map(
-    func(L) = string.join_list(" ", map(
-      func(Elem) = pad_left(string(Elem), ' ', PadSize),
+elem2d(Array2d, Pos) = Array2d^elem(fst(Pos), snd(Pos)).
+
+array2d_to_string(Array2d, PadSize) = array2d_to_string(Array2d, string, PadSize + 1).
+
+array2d_to_string(Array2d, ElemToStringFn, PadSize) = string.join_list("\r\n", map(
+    func(L) = string.join_list("", map(
+      func(Elem) = pad_left(ElemToStringFn(Elem), ' ', PadSize),
       L
     )),
     array2d.lists(Array2d)

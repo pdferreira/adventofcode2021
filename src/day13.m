@@ -79,7 +79,7 @@ points_to_string(Ps) = String :-
     EmptyArr2d,
     Arr2d
   ),
-  String = array2d_to_string(Arr2d, 1).
+  String = array2d_to_string(Arr2d, char_to_string, 2).
 
 :- pred solve(string::in, io::di, io::uo) is det.
 solve(FileName, !IO) :-
