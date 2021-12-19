@@ -11,8 +11,12 @@
 :- type one_or_two(T) ---> one(T) ; two(T, T).
 :- func sum(list(int)) = int.
 :- func product(list(int)) = int.
-:- func max(list(int)) = int is semidet.
-:- func min(list(int)) = int is semidet.
+:- func max(list(int)) = int.
+% :- mode max(in(non_empty_list)) = out is det.
+:- mode max(in) = out is semidet.
+:- func min(list(int)) = int.
+% :- mode min(in(non_empty_list)) = out is det.
+:- mode min(in) = out is semidet.
 :- func median(list(int)) = one_or_two(int) is semidet.
 :- func arith_series_sum(int, int, int) = int.
 
