@@ -157,11 +157,9 @@ min_by(ValueToCompareFn, [X1, X2|Xs]) = MinX :-
   NextMinX = min_by(ValueToCompareFn, [X2|Xs]),
   MinX = (if ValueToCompareFn(X1) =< ValueToCompareFn(NextMinX) then X1 else NextMinX).
 
-foldl_while(_, [], !Acc).% :- trace [io(!IO)] io.print_line("End", !IO).
+foldl_while(_, [], !Acc).
 foldl_while(Pred, [X|Xs], AccIn, AccOut) :-
-  % trace [io(!IO)] (io.print_line(X, !IO), io.print_line(AccIn, !IO)),
   Pred(X, AccIn, PredAccOut),
-  % trace [io(!IO)] (io.print("Succeeded ", !IO), io.print_line(PredAccOut, !IO)),
   (if foldl_while(Pred, Xs, PredAccOut, NextAccOut) then
     AccOut = NextAccOut
   else
