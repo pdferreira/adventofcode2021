@@ -26,6 +26,9 @@
 :- func zip_with(func(A, B) = C, list(A), list(B)) = list(C) is semidet.
 :- pred frequency(list(A)::in, map(A, int)::out) is det.
 :- func min_by(func(T) = int, list(T)) = T is semidet.
+:- pred foldl_while(pred(T, A, A), list(T), A, A).
+:- mode foldl_while(pred(in, in, out) is semidet, in, in, out) is semidet.
+:- func list_to_string(list(T), func(T) = string) = string.
 
 %%% Arrays
 :- pred update(pred(A, A), array(A), array(A)).
@@ -153,6 +156,19 @@ min_by(_, [X]) = X.
 min_by(ValueToCompareFn, [X1, X2|Xs]) = MinX :-
   NextMinX = min_by(ValueToCompareFn, [X2|Xs]),
   MinX = (if ValueToCompareFn(X1) =< ValueToCompareFn(NextMinX) then X1 else NextMinX).
+
+foldl_while(_, [], !Acc).% :- trace [io(!IO)] io.print_line("End", !IO).
+foldl_while(Pred, [X|Xs], AccIn, AccOut) :-
+  % trace [io(!IO)] (io.print_line(X, !IO), io.print_line(AccIn, !IO)),
+  Pred(X, AccIn, PredAccOut),
+  % trace [io(!IO)] (io.print("Succeeded ", !IO), io.print_line(PredAccOut, !IO)),
+  (if foldl_while(Pred, Xs, PredAccOut, NextAccOut) then
+    AccOut = NextAccOut
+  else
+    AccOut = PredAccOut
+  ).
+
+list_to_string(List, ElemToStringFn) = "[" ++ string.join_list(", ", map(ElemToStringFn, List)) ++ "]".
 
 %%% Arrays
 
