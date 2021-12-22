@@ -28,6 +28,7 @@
 :- func min_by(func(T) = int, list(T)) = T is semidet.
 :- pred foldl_while(pred(T, A, A), list(T), A, A).
 :- mode foldl_while(pred(in, in, out) is semidet, in, in, out) is semidet.
+:- func combinations(list(T)) = list(pair(T, T)).
 :- func list_to_string(list(T), func(T) = string) = string.
 
 %%% Arrays
@@ -66,6 +67,7 @@
 :- pred to_pred(func(A) = B, A, B).
 :- mode to_pred(func(in) = out is det, in, out) is det.
 :- mode to_pred(func(in) = out is semidet, in, out) is semidet.
+:- func fixpoint(func(A) = A, A) = A.
 
 %%% Predicates
 :- pred pipe2(pred(A, B), pred(B, C), A, C).
@@ -166,6 +168,9 @@ foldl_while(Pred, [X|Xs], AccIn, AccOut) :-
     AccOut = PredAccOut
   ).
 
+combinations([]) = [].
+combinations([X|Xs]) = map(pair(X), Xs) ++ map(func(A) = pair(A, X), Xs) ++ combinations(Xs).
+
 list_to_string(List, ElemToStringFn) = "[" ++ string.join_list(", ", map(ElemToStringFn, List)) ++ "]".
 
 %%% Arrays
@@ -256,6 +261,14 @@ pipe2(Fn1, Fn2, Arg1) = Fn2(Arg2) :- Fn1(Arg1) = Arg2.
 pipe3(Fn1, Fn2, Fn3, Arg) = pipe2(Fn1, pipe2(Fn2, Fn3))(Arg).
 
 to_pred(Fn, In, Out) :- Fn(In) = Out.
+
+fixpoint(Fn, In) = Out :-
+  TmpOut = Fn(In),
+  (if TmpOut = In then
+    Out = In
+  else
+    Out = fixpoint(Fn, TmpOut)
+  ).
 
 %%% Predicates
 
