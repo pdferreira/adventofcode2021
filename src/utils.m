@@ -29,6 +29,7 @@
 :- pred foldl_while(pred(T, A, A), list(T), A, A).
 :- mode foldl_while(pred(in, in, out) is semidet, in, in, out) is semidet.
 :- func combinations(list(T)) = list(pair(T, T)).
+:- func combinations_unordered(list(T)) = list(pair(T, T)).
 :- func list_to_string(list(T), func(T) = string) = string.
 
 %%% Arrays
@@ -170,6 +171,9 @@ foldl_while(Pred, [X|Xs], AccIn, AccOut) :-
 
 combinations([]) = [].
 combinations([X|Xs]) = map(pair(X), Xs) ++ map(func(A) = pair(A, X), Xs) ++ combinations(Xs).
+
+combinations_unordered([]) = [].
+combinations_unordered([X|Xs]) = map(pair(X), Xs) ++ combinations_unordered(Xs).
 
 list_to_string(List, ElemToStringFn) = "[" ++ string.join_list(", ", map(ElemToStringFn, List)) ++ "]".
 
