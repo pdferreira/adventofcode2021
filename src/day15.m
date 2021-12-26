@@ -34,7 +34,7 @@ adjacent_position(MaxRow, MaxCol, Row, Col, AdjPosition) :-
 :- func min_adjacent_risk(risk_map, int, int) = int is det.
 min_adjacent_risk(RiskMap, Row, Col) = MinRisk :-
   bounds(RiskMap, MaxRow, MaxCol),
-  solutions(adjacent_position(MaxRow, MaxCol, Row, Col), AdjPositions),
+  solutions(day15.adjacent_position(MaxRow, MaxCol, Row, Col), AdjPositions),
   (MinRisk = min(map(elem2d(RiskMap), AdjPositions)) ; throw("Unexpected")).
 
 :- pred transitive_risk_step(risk_map::in, int::in, int::in, risk_map::array2d_di, risk_map::array2d_uo, bool::out) is det.
@@ -94,7 +94,7 @@ draw_min_risk_path(TransitiveRiskMap, Row, Col, !DrawnMap) :-
     true
   else
     bounds(TransitiveRiskMap, MaxRow, MaxCol),
-    solutions(adjacent_position(MaxRow, MaxCol, Row, Col), AdjPositions),
+    solutions(day15.adjacent_position(MaxRow, MaxCol, Row, Col), AdjPositions),
     (if MinPos = min_by(elem2d(TransitiveRiskMap), AdjPositions) then
       draw_min_risk_path(TransitiveRiskMap, fst(MinPos), snd(MinPos), !DrawnMap)
     else

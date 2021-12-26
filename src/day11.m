@@ -22,26 +22,6 @@ parse_octopi_grid(Lines, Grid) :-
   ): list(list(energy_level)),
   Grid = array2d.from_lists(EnergiesLL).
 
-:- pred adjacent_position(int::in, int::in, int::in, int::in, pair(int, int)::out) is nondet.
-adjacent_position(MaxRow, MaxCol, Row, Col, AdjPosition) :-
-  (
-    Col + 1 < MaxCol, Row + 1 < MaxRow, AdjPosition = pair(Row + 1, Col + 1)
-  ;
-    Col + 1 < MaxCol, AdjPosition = pair(Row, Col + 1)
-  ;
-    Row + 1 < MaxRow, AdjPosition = pair(Row + 1, Col)
-  ;
-    Col > 0, AdjPosition = pair(Row, Col - 1)
-  ;
-    Row > 0, AdjPosition = pair(Row - 1, Col)
-  ;
-    Col > 0, Row + 1 < MaxRow, AdjPosition = pair(Row + 1, Col - 1)
-  ;
-    Col > 0, Row > 0, AdjPosition = pair(Row - 1, Col - 1)
-  ;
-    Col + 1 < MaxCol, Row > 0, AdjPosition = pair(Row - 1, Col + 1)
-  ).
-
 :- pred simulate_flashes(int::in, int::in, octopi_grid::array2d_di, octopi_grid::array2d_uo, int::out) is det.
 simulate_flashes(Row, Col, !Grid, OutNumFlashes) :-
   bounds(!.Grid, MaxRow, MaxCol),

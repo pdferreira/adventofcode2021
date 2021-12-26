@@ -41,6 +41,7 @@
 :- func array2d_to_string(array2d(T), int) = string.
 :- func array2d_to_string(array2d(T), func(T) = string, int) = string.
 :- func elem2d(array2d(T), pair(int, int)) = T is det.
+:- pred adjacent_position(int::in, int::in, int::in, int::in, pair(int, int)::out) is nondet.
 
 %%% Maps
 :- func map_to_string(map(A, B)) = string.
@@ -221,6 +222,25 @@ update2d_aux(Update, Row, Col, !Arr2d) :-
 update2d(Update, !Arr2d) :- update2d_aux(Update, 0, 0, !Arr2d).
 
 elem2d(Array2d, Pos) = Array2d^elem(fst(Pos), snd(Pos)).
+
+adjacent_position(MaxRow, MaxCol, Row, Col, AdjPosition) :-
+  (
+    Col + 1 < MaxCol, Row + 1 < MaxRow, AdjPosition = pair(Row + 1, Col + 1)
+  ;
+    Col + 1 < MaxCol, AdjPosition = pair(Row, Col + 1)
+  ;
+    Row + 1 < MaxRow, AdjPosition = pair(Row + 1, Col)
+  ;
+    Col > 0, AdjPosition = pair(Row, Col - 1)
+  ;
+    Row > 0, AdjPosition = pair(Row - 1, Col)
+  ;
+    Col > 0, Row + 1 < MaxRow, AdjPosition = pair(Row + 1, Col - 1)
+  ;
+    Col > 0, Row > 0, AdjPosition = pair(Row - 1, Col - 1)
+  ;
+    Col + 1 < MaxCol, Row > 0, AdjPosition = pair(Row - 1, Col + 1)
+  ).
 
 array2d_to_string(Array2d, PadSize) = array2d_to_string(Array2d, string, PadSize + 1).
 
