@@ -1,7 +1,7 @@
 :- module utils.
 
 :- interface.
-:- import_module string, list, int, io, array, array2d, map, stack, pair.
+:- import_module string, list, int, io, array, array2d, map, stack, pair, set.
 
 %%% IO
 :- pred read_lines(list(string)::out, io::di, io::uo) is det.
@@ -49,6 +49,10 @@
 
 %%% Stacks
 :- func stack_to_list(stack(T)) = list(T) is det.
+
+%%% Sets
+:- pred any_true(pred(T), set(T)).
+:- mode any_true(pred(in) is semidet, in) is semidet.
 
 %%% Functions
 :- func curry(func(A, B) = C) = (func(A) = (func(B) = C)).
@@ -274,6 +278,16 @@ stack_to_list(Stack) = List :-
   else
     det_pop(Elem, Stack, NewStack),
     List = [Elem|stack_to_list(NewStack)]
+  ).
+
+%%% Sets
+
+any_true(Pred, Set) :-
+  remove_least(Elem, Set, RemSet),
+  (if Pred(Elem) then
+    true
+  else
+    any_true(Pred, RemSet)
   ).
 
 %%% Functions
