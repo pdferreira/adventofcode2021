@@ -24,6 +24,7 @@
 :- pred transpose(list(list(T))::in, list(list(T))::out) is det.
 :- func transpose(list(list(T))) = list(list(T)) is det.
 :- func zip_with(func(A, B) = C, list(A), list(B)) = list(C) is semidet.
+:- func det_zip_with(func(A, B) = C, list(A), list(B)) = list(C).
 :- pred frequency(list(A)::in, map(A, int)::out) is det.
 :- func min_by(func(T) = int, list(T)) = T is semidet.
 :- pred foldl_while(pred(T, A, A), list(T), A, A).
@@ -53,6 +54,9 @@
 %%% Sets
 :- pred any_true(pred(T), set(T)).
 :- mode any_true(pred(in) is semidet, in) is semidet.
+
+%%% Pairs
+:- func swap(pair(T1, T2)) = pair(T2, T1).
 
 %%% Functions
 :- func curry(func(A, B) = C) = (func(A) = (func(B) = C)).
@@ -92,6 +96,7 @@
 :- mode pipe3(pred(in, out) is semidet, pred(in, out) is semidet, pred(in, out) is det, in, out) is semidet.
 
 :- implementation.
+:- import_module exception.
 
 %%% IO
 
@@ -150,6 +155,9 @@ transpose(Xs) = Zs :- transpose(Xs, Zs).
 
 zip_with(_, [], []) = [].
 zip_with(ZipElemFn, [X|Xs], [Y|Ys]) = [ZipElemFn(X, Y) | zip_with(ZipElemFn, Xs, Ys)].
+
+det_zip_with(ZipElemFn, Xs, Ys) = zip_with(ZipElemFn, Xs, Ys).
+det_zip_with(_, _, _) = _ :- throw("list sizes don't match").
 
 frequency([], map.init).
 frequency([X|Xs], FreqMap) :-
@@ -289,6 +297,10 @@ any_true(Pred, Set) :-
   else
     any_true(Pred, RemSet)
   ).
+
+%%% Pairs
+
+swap(P) = pair(snd(P), fst(P)). 
 
 %%% Functions
 
